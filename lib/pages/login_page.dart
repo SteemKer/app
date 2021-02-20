@@ -1,6 +1,9 @@
-import 'package:flutter/gestures.dart';
+import 'dart:convert';
+
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_appauth/flutter_appauth.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -10,8 +13,71 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPage extends State<LoginPage> {
+  final storage = new FlutterSecureStorage();
+  final FlutterAppAuth appAuth = FlutterAppAuth();
+
+  Map<String, dynamic> parseIdToken(String idToken) {
+    final parts = idToken.split(r'.');
+    assert(parts.length == 3);
+
+    return jsonDecode(
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
+  }
+
+  Future _loginUser() async {
+    final AuthorizationTokenResponse result =
+        await appAuth.authorizeAndExchangeCode(
+      AuthorizationTokenRequest("793424606324981770", "steeker://oauthredirect",
+          serviceConfiguration: AuthorizationServiceConfiguration(
+            "https://discordapp.com/api/oauth2/authorize",
+            "https://discordapp.com/api/oauth2/token",
+          ),
+          scopes: ["email", "identify"],
+          promptValues: ["none"]),
+    );
+
+    final responseData =
+        await _getCode(result.accessToken, result.refreshToken);
+    await storage.write(key: "token", value: responseData["code"]);
+  }
+
+  Future<Map<String, dynamic>> _getCode(
+      String accessToken, String refreshToken) async {
+    final queryParams = {
+      "access_token": accessToken,
+      "refresh_token": refreshToken,
+      "redirectUri": "steeker://oauthredirect"
+    };
+
+    final String queryString = Uri(queryParameters: queryParams).query;
+
+    final response = await http
+        .post("https://rust.piyushdev.ml/api/auth/code?" + queryString);
+
+    print(response.statusCode);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to get user details');
+    }
+  }
+
   void _raisedButtonPressed() {
     print("clicked");
+    _loginUser().then((value) => null);
+  }
+
+  Future<bool> isLoggedIn() async {
+    final token = await storage.read(key: "token");
+    return token != null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    isLoggedIn().then((_) => null);
   }
 
   @override

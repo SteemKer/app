@@ -18,10 +18,11 @@ class _LoginPage extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          image: DecorationImage(
-        image: NetworkImage("https://i.imgur.com/UoJpQig.jpg"),
-        fit: BoxFit.cover,
-      )),
+        image: DecorationImage(
+          image: NetworkImage("https://i.imgur.com/UoJpQig.jpg"),
+          fit: BoxFit.cover,
+        ),
+      ),
       child: Container(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -59,9 +60,8 @@ class _LoginPage extends State<LoginPage> {
                               "Can't login? Contact Piyush#4332",
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black54
-                              ),
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black54),
                             ),
                           ],
                         ),

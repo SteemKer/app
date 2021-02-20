@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:steeker/home_page.dart';
-import 'package:steeker/pages/login_page.dart';
+import 'package:steeker/pages/landing_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,7 +14,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
       ),
-      home: LoginPage(),
+      home: LandingPage(),
     );
   }
 }

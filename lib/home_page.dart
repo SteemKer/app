@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:steeker/placeholder.dart';
+import 'package:steeker/pages/placeholder.dart';
+import 'package:steeker/pages/profile_screen.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -11,11 +12,12 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _currentIndex = 1;
   final List<Widget> _children = [
-    PlaceholderWidget(Colors.blueAccent),
-    PlaceholderWidget(Colors.greenAccent)
+    PlaceholderWidget(Colors.black12),
+    ProfileScreen()
   ];
 
   void onTabTapped(int index) {
+    print(index);
     setState(() {
       _currentIndex = index;
     });
@@ -33,13 +35,9 @@ class _HomeState extends State<Home> {
         currentIndex: _currentIndex,
         items: [
           BottomNavigationBarItem(
-              icon: new Icon(Icons.polymer),
-              label: "Stickers"
-          ),
+              icon: new Icon(Icons.polymer), label: "Stickers"),
           BottomNavigationBarItem(
-              icon: new Icon(Icons.verified_user),
-              label: "Profile"
-          ),
+              icon: new Icon(Icons.verified_user), label: "Profile"),
         ],
       ),
     );

@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
+import 'package:steeker/pages/landing_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -39,6 +40,11 @@ class _LoginPage extends State<LoginPage> {
     final responseData =
         await _getCode(result.accessToken, result.refreshToken);
     await storage.write(key: "token", value: responseData["code"]);
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LandingPage()),
+    );
   }
 
   Future<Map<String, dynamic>> _getCode(
@@ -53,8 +59,6 @@ class _LoginPage extends State<LoginPage> {
 
     final response = await http
         .post("https://rust.piyushdev.ml/api/auth/code?" + queryString);
-
-    print(response.statusCode);
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);

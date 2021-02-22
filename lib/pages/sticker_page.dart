@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
 import 'login_page.dart';
@@ -34,6 +35,7 @@ class _StickerPage extends State<StickerPage> {
         headers: {"Authorization": "Bearer " + token});
 
     if (response.statusCode != 200) {
+      print(response.statusCode);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),
@@ -44,6 +46,7 @@ class _StickerPage extends State<StickerPage> {
     List<dynamic> decodedData = jsonDecode(response.body);
     List<Widget> _cards = [];
     decodedData.forEach((pack) {
+      if (pack["data"].length <= 0) return;
       _cards.add(Container(
         height: 200,
         width: (MediaQuery.of(context).size.width -
@@ -90,9 +93,36 @@ class _StickerPage extends State<StickerPage> {
   }
 
   // ignore: missing_return
-  onAddPressed(packID) {
+  onAddPressed(packID) async {
     print(packID);
-    print("pressed");
+    final token = await storage.read(key: "token");
+    final queryParams = {"pack_id": packID};
+    final String queryString = Uri(queryParameters: queryParams).query;
+
+    final response = await http.get(
+        "https://rust.piyushdev.ml/api/stickers/@me?$queryString",
+        headers: {"Authorization": "Bearer " + token});
+
+    if (response.statusCode != 200) {
+      Fluttertoast.showToast(
+          msg: "Pack with ID $packID not found",
+          backgroundColor: Colors.redAccent,
+          textColor: Colors.white);
+      return;
+    }
+
+    Map<String, dynamic> data = jsonDecode(response.body);
+    if (data["data"].length <= 0) {
+      Fluttertoast.showToast(
+          msg: "Pack with ID $packID has no data in it",
+          backgroundColor: Colors.redAccent,
+          textColor: Colors.white);
+      return;
+    }
+  }
+
+  Future downloadFromServer() async {
+
   }
 
   @override

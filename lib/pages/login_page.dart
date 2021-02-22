@@ -17,14 +17,6 @@ class _LoginPage extends State<LoginPage> {
   final storage = new FlutterSecureStorage();
   final FlutterAppAuth appAuth = FlutterAppAuth();
 
-  Map<String, dynamic> parseIdToken(String idToken) {
-    final parts = idToken.split(r'.');
-    assert(parts.length == 3);
-
-    return jsonDecode(
-        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
-  }
-
   Future _loginUser() async {
     final AuthorizationTokenResponse result =
         await appAuth.authorizeAndExchangeCode(

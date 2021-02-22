@@ -9,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:whatsapp_stickers/exceptions.dart';
 import 'package:whatsapp_stickers/whatsapp_stickers.dart';
 
 import 'login_page.dart';
@@ -57,7 +58,7 @@ class _StickerPage extends State<StickerPage> {
     List<dynamic> decodedData = jsonDecode(response.body);
     List<Widget> _cards = [];
     decodedData.forEach((pack) {
-      if (pack["data"].length <= 0) return;
+      if (pack["data"].length <= 3 || pack["data"].length > 30) return;
       _cards.add(Container(
         height: 200,
         width: (MediaQuery.of(context).size.width -
@@ -94,6 +95,7 @@ class _StickerPage extends State<StickerPage> {
       data = decodedData;
       cards = _cards;
       _isLoading = false;
+      screenLoaded = true;
     });
   }
 
@@ -124,16 +126,18 @@ class _StickerPage extends State<StickerPage> {
     }
 
     Map<String, dynamic> data = jsonDecode(response.body);
-    if (data["data"].length <= 0) {
+    if (data["data"].length <= 2) {
       Fluttertoast.showToast(
           msg: "Pack with ID $packID has no data in it",
           backgroundColor: Colors.redAccent,
           textColor: Colors.white);
       return;
     }
+
+    await downloadFromServerAndAddToWhatsapp(packID, data);
   }
 
-  Future downloadFromServer(
+  Future downloadFromServerAndAddToWhatsapp(
     String packID,
     Map<String, dynamic> packData,
   ) async {
@@ -148,22 +152,33 @@ class _StickerPage extends State<StickerPage> {
     await stickersDirectory.create(recursive: true);
     final downloads = <Future>[];
 
+    setState(() {
+      _isLoading = true;
+      downloaded = 0;
+      toDownload = packData["data"].length;
+    });
+
     packData["data"].forEach(
       (emoteData) {
         downloads.add(
           dio.download(emoteData["url"],
               "${stickersDirectory.path}/${emoteData["name"]}.webp"),
         );
+
+        setState(() {
+          downloaded = downloaded + 1;
+        });
       },
     );
 
     await Future.wait(downloads);
+    print(packData);
 
     var stickerPack = WhatsappStickers(
       identifier: packID,
       name: packData["name"],
       publisher: 'Steeker',
-      trayImageFileName: WhatsappStickerImage.fromAsset('assets/logo.png'),
+      trayImageFileName: WhatsappStickerImage.fromAsset('assets/tray_Cuppy.png'),
       publisherWebsite: 'https://steeker.piyushdev.ml',
       privacyPolicyWebsite: 'https://steeker.piyushdev.ml/privacy',
       licenseAgreementWebsite: 'https://steeker.piyushdev.ml/license',
@@ -171,6 +186,7 @@ class _StickerPage extends State<StickerPage> {
 
     packData["data"].forEach(
       (emoteData) {
+        print(emoteData["name"]);
         stickerPack.addSticker(
           WhatsappStickerImage.fromFile(
               "${stickersDirectory.path}/${emoteData["name"]}.webp"),
@@ -178,6 +194,20 @@ class _StickerPage extends State<StickerPage> {
         );
       },
     );
+
+    try {
+      print("sending");
+      await stickerPack.sendToWhatsApp();
+      setState(() {
+        _isLoading = false;
+      });
+    } on WhatsappStickersException catch (e) {
+      print(e.cause);
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_conditional_rendering/conditional_switch.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'package:steeker/pages/login_page.dart';
 import 'package:steeker/pages/placeholder.dart';
@@ -23,8 +24,10 @@ class _LandingPage extends State<LandingPage> {
   bool fetched = false;
 
   Future isLoggedIn() async {
+    Map<Permission, PermissionStatus> permissions = await [Permission.storage].request();
+
     final token = await storage.read(key: "token");
-    
+
     if (token == null) {
       setState(() {
         loggedIn = false;

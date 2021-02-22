@@ -122,7 +122,7 @@ class _StickerPage extends State<StickerPage> {
   }
 
   Future downloadFromServer() async {
-
+    var applicationsDocumentDirectory = await getApplicationDocumentsDirectory();
   }
 
   @override

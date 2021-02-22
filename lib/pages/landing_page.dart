@@ -5,9 +5,10 @@ import 'package:flutter_conditional_rendering/conditional_switch.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import 'package:steeker/home_page.dart';
 import 'package:steeker/pages/login_page.dart';
 import 'package:steeker/pages/placeholder.dart';
+
+import 'home_page.dart';
 
 class LandingPage extends StatefulWidget {
   @override

@@ -45,10 +45,12 @@ class _ProfileScreen extends State<ProfileScreen> {
     String discriminator = data["discriminator"];
     String avatar = data["avatar"];
 
-    setState(() {
-      username = "$name#$discriminator";
-      avatarURL = avatar;
-    });
+    if (this.mounted) {
+      setState(() {
+        username = "$name#$discriminator";
+        avatarURL = avatar;
+      });
+    }
   }
 
   Future _logout() async {

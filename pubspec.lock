@@ -224,6 +224,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+  whatsapp_stickers:
+    dependency: "direct main"
+    description:
+      name: whatsapp_stickers
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.4"
 sdks:
   dart: ">=2.12.0-0.0 <3.0.0"
   flutter: ">=1.20.0"

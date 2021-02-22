@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:steeker/pages/placeholder.dart';
 import 'package:steeker/pages/profile_screen.dart';
+import 'package:steeker/pages/sticker_page.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -12,7 +12,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _currentIndex = 1;
   final List<Widget> _children = [
-    PlaceholderWidget(Colors.black12),
+    StickerPage(),
     ProfileScreen()
   ];
 

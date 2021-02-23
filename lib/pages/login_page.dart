@@ -60,7 +60,6 @@ class _LoginPage extends State<LoginPage> {
   }
 
   void _raisedButtonPressed() {
-    print("clicked");
     _loginUser().then((value) => null);
   }
 

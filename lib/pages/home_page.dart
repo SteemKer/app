@@ -17,7 +17,6 @@ class _HomeState extends State<Home> {
   ];
 
   void onTabTapped(int index) {
-    print(index);
     setState(() {
       _currentIndex = index;
     });

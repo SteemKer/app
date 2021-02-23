@@ -47,7 +47,6 @@ class _StickerPage extends State<StickerPage> {
         headers: {"Authorization": "Bearer " + token});
 
     if (response.statusCode != 200) {
-      print(response.statusCode);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),
@@ -108,7 +107,6 @@ class _StickerPage extends State<StickerPage> {
 
   // ignore: missing_return
   onAddPressed(packID) async {
-    print(packID);
     final token = await storage.read(key: "token");
     final queryParams = {"pack_id": packID};
     final String queryString = Uri(queryParameters: queryParams).query;
@@ -158,8 +156,6 @@ class _StickerPage extends State<StickerPage> {
       toDownload = packData["data"].length;
     });
 
-    print(packData["tray_image"]);
-
     downloads.add(
       dio.download(packData["tray_image"],
           "${stickersDirectory.path}/${packData["pack_id"]}.png"),
@@ -194,7 +190,6 @@ class _StickerPage extends State<StickerPage> {
 
     packData["data"].forEach(
       (emoteData) {
-        print(emoteData["name"]);
         stickerPack.addSticker(
           WhatsappStickerImage.fromFile(
               "${stickersDirectory.path}/${emoteData["name"]}.webp"),
@@ -204,7 +199,6 @@ class _StickerPage extends State<StickerPage> {
     );
 
     try {
-      print("sending");
       await stickerPack.sendToWhatsApp();
       setState(() {
         _isLoading = false;

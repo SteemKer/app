@@ -8,9 +8,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_overlay/loading_overlay.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:whatsapp_stickers/exceptions.dart';
-import 'package:whatsapp_stickers/whatsapp_stickers.dart';
 
 import 'login_page.dart';
 
@@ -131,86 +128,8 @@ class _StickerPage extends State<StickerPage> {
           textColor: Colors.white);
       return;
     }
-
-    await downloadFromServerAndAddToWhatsapp(packID, data);
   }
 
-  Future downloadFromServerAndAddToWhatsapp(
-    String packID,
-    Map<String, dynamic> packData,
-  ) async {
-    var applicationsDocumentDirectory =
-        await getApplicationDocumentsDirectory();
-    var stickersDirectory =
-        Directory("${applicationsDocumentDirectory.path}/stickers/$packID");
-    bool exists = await stickersDirectory.exists();
-    if (exists) {
-      await stickersDirectory.delete(recursive: true);
-    }
-    await stickersDirectory.create(recursive: true);
-    final downloads = <Future>[];
-
-    setState(() {
-      _isLoading = true;
-      downloaded = 0;
-      toDownload = packData["data"].length;
-    });
-
-    downloads.add(
-      dio.download(packData["tray_image"],
-          "${stickersDirectory.path}/${packData["pack_id"]}.png"),
-    );
-
-    packData["data"].forEach(
-      (emoteData) {
-        downloads.add(
-          dio.download(emoteData["url"],
-              "${stickersDirectory.path}/${emoteData["name"]}.webp"),
-        );
-
-        setState(() {
-          downloaded = downloaded + 1;
-        });
-      },
-    );
-
-    await Future.wait(downloads);
-
-    var stickerPack = WhatsappStickers(
-      identifier: packID,
-      name: packData["name"],
-      publisher: 'Steeker',
-      trayImageFileName: WhatsappStickerImage.fromFile(
-        "${stickersDirectory.path}/${packData["pack_id"]}.png",
-      ),
-      publisherWebsite: 'https://steeker.piyushdev.ml',
-      privacyPolicyWebsite: 'https://steeker.piyushdev.ml/privacy',
-      licenseAgreementWebsite: 'https://steeker.piyushdev.ml/license',
-    );
-
-    packData["data"].forEach(
-      (emoteData) {
-        stickerPack.addSticker(
-          WhatsappStickerImage.fromFile(
-              "${stickersDirectory.path}/${emoteData["name"]}.webp"),
-          ["😉"],
-        );
-      },
-    );
-
-    try {
-      await stickerPack.sendToWhatsApp();
-      setState(() {
-        _isLoading = false;
-      });
-    } on WhatsappStickersException catch (e) {
-      print(e.cause);
-    }
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

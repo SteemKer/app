@@ -158,6 +158,13 @@ class _StickerPage extends State<StickerPage> {
       toDownload = packData["data"].length;
     });
 
+    print(packData["tray_image"]);
+
+    downloads.add(
+      dio.download(packData["tray_image"],
+          "${stickersDirectory.path}/${packData["pack_id"]}.png"),
+    );
+
     packData["data"].forEach(
       (emoteData) {
         downloads.add(
@@ -172,13 +179,14 @@ class _StickerPage extends State<StickerPage> {
     );
 
     await Future.wait(downloads);
-    print(packData);
 
     var stickerPack = WhatsappStickers(
       identifier: packID,
       name: packData["name"],
       publisher: 'Steeker',
-      trayImageFileName: WhatsappStickerImage.fromAsset('assets/tray_Cuppy.png'),
+      trayImageFileName: WhatsappStickerImage.fromFile(
+        "${stickersDirectory.path}/${packData["pack_id"]}.png",
+      ),
       publisherWebsite: 'https://steeker.piyushdev.ml',
       privacyPolicyWebsite: 'https://steeker.piyushdev.ml/privacy',
       licenseAgreementWebsite: 'https://steeker.piyushdev.ml/license',

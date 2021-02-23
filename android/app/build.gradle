@@ -29,7 +29,7 @@ android {
     compileSdkVersion 30
 
     aaptOptions {
-        noCompress "webp"
+        noCompress "webp", "png"
     }
 
     sourceSets {

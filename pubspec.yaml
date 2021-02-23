@@ -19,6 +19,7 @@ dependencies:
   flutter_conditional_rendering: ^1.1.1
   fluttertoast: ^7.1.8
   loading_overlay: ^0.2.1
+  flutter_whatsapp_stickers: ^1.0.0+4
   flutter:
     sdk: flutter
 

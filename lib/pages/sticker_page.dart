@@ -5,9 +5,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_conditional_rendering/conditional.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_whatsapp_stickers/flutter_whatsapp_stickers.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_overlay/loading_overlay.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'login_page.dart';
 
@@ -21,10 +23,13 @@ class StickerPage extends StatefulWidget {
 class _StickerPage extends State<StickerPage> {
   final storage = new FlutterSecureStorage();
   final dio = Dio();
+  final WhatsAppStickers _whatsAppStickers = WhatsAppStickers();
   int downloaded = 1;
   int toDownload = 2;
   bool _isLoading = true;
   bool screenLoaded = false;
+  Map<String, dynamic> _stickerPacksConfig;
+  List<dynamic> _storedStickerPacks;
   List<dynamic> data = [];
   List<Widget> cards = [];
 
@@ -98,8 +103,32 @@ class _StickerPage extends State<StickerPage> {
   @override
   void initState() {
     super.initState();
+    checkFolderStructure();
 
     isLoggedIn().then((isLogged) => null);
+  }
+
+  void checkFolderStructure() async {
+    var _applicationDirectory = await getApplicationDocumentsDirectory();
+    var _stickerPackDirectory =
+        Directory("${_applicationDirectory.path}/stickers");
+    var _stickersConfigFile =
+        File("${_stickerPackDirectory.path}/sticker_packs.json");
+
+    if (!(await _stickersConfigFile.exists())) {
+      _stickersConfigFile.createSync(recursive: true);
+      _stickerPacksConfig = {
+        "android_play_store_link": "",
+        "ios_app_store_link": "",
+        "sticker_packs": [],
+      };
+      String fileContents = jsonEncode(_stickerPacksConfig) + "\n";
+      _stickersConfigFile.writeAsStringSync(fileContents, flush: true);
+    }
+
+    _stickerPacksConfig =
+        jsonDecode((await _stickersConfigFile.readAsString()));
+    _storedStickerPacks = _stickerPacksConfig["sticker_packs"];
   }
 
   // ignore: missing_return
@@ -129,7 +158,6 @@ class _StickerPage extends State<StickerPage> {
       return;
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

@@ -9,6 +9,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  sentry_flutter: ^4.0.4
   http: ^0.12.2
   dio: ^3.0.10
   path_provider: ^1.6.27

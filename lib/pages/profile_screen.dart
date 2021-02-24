@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -14,6 +15,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreen extends State<ProfileScreen> {
   final storage = new FlutterSecureStorage();
+  final FirebaseAnalytics analytics = FirebaseAnalytics();
   String avatarURL = "https://i.imgur.com/xLhxW6F.png";
   String username = "Clyde";
 
@@ -44,6 +46,15 @@ class _ProfileScreen extends State<ProfileScreen> {
     String name = data["username"];
     String discriminator = data["discriminator"];
     String avatar = data["avatar"];
+
+    await analytics.setUserId("$name#$discriminator");
+    await analytics.logEvent(
+      name: "profile_screen_loaded",
+      parameters: {
+        "id": data["id"],
+        "user": "$name#$discriminator",
+      },
+    );
 
     if (this.mounted) {
       setState(() {

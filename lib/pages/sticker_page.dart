@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_conditional_rendering/conditional.dart';
@@ -24,6 +25,7 @@ class StickerPage extends StatefulWidget {
 
 class _StickerPage extends State<StickerPage> {
   final storage = new FlutterSecureStorage();
+  final FirebaseAnalytics analytics = FirebaseAnalytics();
   final dio = Dio();
   final WhatsAppStickers _whatsAppStickers = WhatsAppStickers();
   final Trace myTrace = FirebasePerformance.instance.newTrace("stickers");
@@ -39,12 +41,9 @@ class _StickerPage extends State<StickerPage> {
   List<dynamic> data = [];
   List<Widget> cards = [];
 
-  Map<String, dynamic> toJson() {
-    return {
-      "android_play_store_link": "",
-      "ios_app_store_link": "",
-      "sticker_packs": _storedStickerPacks,
-    };
+  Future<void> _sendAnalyticsEvent(
+      String eventName, Map<String, dynamic> parameters) async {
+    await analytics.logEvent(name: eventName, parameters: parameters);
   }
 
   Future isLoggedIn() async {
@@ -57,6 +56,32 @@ class _StickerPage extends State<StickerPage> {
       );
       return;
     }
+
+    final profileResponse = await http.get(
+        "https://rust.piyushdev.ml/api/users/@me",
+        headers: {"Authorization": "Bearer " + token});
+
+    if (profileResponse.statusCode != 200) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+      return;
+    }
+
+    Map<String, dynamic> profileData = jsonDecode(profileResponse.body);
+
+    String name = profileData["username"];
+    String discriminator = profileData["discriminator"];
+
+    await analytics.setUserId("$name#$discriminator");
+    await analytics.logEvent(
+      name: "sticker_screen_loaded",
+      parameters: {
+        "id": profileData["id"],
+        "user": "$name#$discriminator",
+      },
+    );
 
     final response = await http.get(
         "https://rust.piyushdev.ml/api/stickers/@me",
@@ -112,6 +137,15 @@ class _StickerPage extends State<StickerPage> {
       _isLoading = false;
       screenLoaded = true;
     });
+
+    await analytics.logEvent(
+      name: "stickers_data_loaded",
+      parameters: {
+        "id": profileData["id"],
+        "user": "$name#$discriminator",
+        "stickers_length": data.length
+      },
+    );
   }
 
   @override
@@ -123,6 +157,10 @@ class _StickerPage extends State<StickerPage> {
   }
 
   void checkFolderStructure() async {
+    await analytics.logEvent(
+      name: "validate_folder_structure",
+      parameters: {},
+    );
     _applicationDirectory = await getApplicationDocumentsDirectory();
     _stickerPacksDirectory =
         Directory("${_applicationDirectory.path}/sticker_packs");
@@ -147,6 +185,11 @@ class _StickerPage extends State<StickerPage> {
 
   // ignore: missing_return
   onAddPressed(packID) async {
+    await analytics.logEvent(
+      name: "sticker_add_pressed",
+      parameters: {"pack_id": packID},
+    );
+
     final token = await storage.read(key: "token");
     final queryParams = {"pack_id": packID};
     final String queryString = Uri(queryParameters: queryParams).query;
@@ -189,6 +232,12 @@ class _StickerPage extends State<StickerPage> {
 
   downloadAndAdd(Map<String, dynamic> packData) async {
     String packID = packData["pack_id"];
+
+    await analytics.logEvent(
+      name: "sticker_add_init",
+      parameters: {"pack_id": packID, "pack_name": packData["name"]},
+    );
+
     checkFolderStructure();
     var _stickerPackDirectory =
         Directory("${_stickerPacksDirectory.path}/$packID")
@@ -262,8 +311,9 @@ class _StickerPage extends State<StickerPage> {
         action: action,
         result: result,
         error: error,
-        successCallback: () =>
-            Fluttertoast.showToast(msg: "Added ${packData["name"]}"),
+        successCallback: () => {
+          Fluttertoast.showToast(msg: "Added ${packData["name"]}"),
+        },
         context: context,
       ),
     );

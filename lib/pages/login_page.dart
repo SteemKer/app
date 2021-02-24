@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -18,8 +19,15 @@ class LoginPage extends StatefulWidget {
 class _LoginPage extends State<LoginPage> {
   final storage = new FlutterSecureStorage();
   final FlutterAppAuth appAuth = FlutterAppAuth();
+  final FirebaseAnalytics analytics = FirebaseAnalytics();
+
+  Future<void> _sendAnalyticsEvent(
+      String eventName, Map<String, dynamic> parameters) async {
+    await analytics.logEvent(name: eventName, parameters: parameters);
+  }
 
   Future _loginUser() async {
+    await _sendAnalyticsEvent("login_click", {});
     final Trace oauthTrace = FirebasePerformance.instance.newTrace("login");
 
     await oauthTrace.start();
@@ -42,6 +50,8 @@ class _LoginPage extends State<LoginPage> {
 
     await storage.write(key: "token", value: responseData["code"]);
     oauthTrace.incrementMetric("oauth_store_token", 1);
+    await analytics.logLogin(loginMethod: "oauth");
+    await _sendAnalyticsEvent("user_logged_in", {});
 
     await oauthTrace.stop();
 
@@ -51,6 +61,7 @@ class _LoginPage extends State<LoginPage> {
     );
   }
 
+  // ignore: missing_return
   Future<Map<String, dynamic>> _getCode(
       String accessToken, String refreshToken) async {
     final queryParams = {

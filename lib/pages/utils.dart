@@ -34,6 +34,6 @@ Future<void> processResponse(
 
   /// Display a snack bar
   if (snackBar != null && context != null) {
-    Scaffold.of(context).showSnackBar(snackBar);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

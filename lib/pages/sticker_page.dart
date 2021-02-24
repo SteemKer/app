@@ -273,8 +273,6 @@ class _StickerPage extends State<StickerPage> {
     setState(() {
       _isLoading = false;
     });
-
-    await _stickerPackDirectory.delete(recursive: true);
   }
 
   @override

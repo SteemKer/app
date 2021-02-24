@@ -12,6 +12,7 @@ dependencies:
   sentry_flutter: ^4.0.4
   http: ^0.12.2
   dio: ^3.0.10
+  firebase_performance: ^0.5.0+1
   path_provider: ^1.6.27
   permission_handler: ^5.1.0+2
   flutter_appauth: ^0.9.2+6

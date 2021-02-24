@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "591967482346",
+    "project_id": "steeeeker",
+    "storage_bucket": "steeeeker.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:591967482346:android:563b9a0874a77b1dda8293",
+        "android_client_info": {
+          "package_name": "io.github.officialpiyush.steeker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "591967482346-aft4o29cmiis9ii7gic6rm2kjjcp4egp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgjcSTeFzm1enqrKu3AXh8H2f-WjIFVY4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "591967482346-aft4o29cmiis9ii7gic6rm2kjjcp4egp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -10,6 +10,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:steeker/pages/utils.dart';
 
 import 'login_page.dart';
 
@@ -28,10 +29,21 @@ class _StickerPage extends State<StickerPage> {
   int toDownload = 2;
   bool _isLoading = true;
   bool screenLoaded = false;
+  Directory _applicationDirectory;
+  Directory _stickerPacksDirectory;
+  File _stickersConfigFile;
   Map<String, dynamic> _stickerPacksConfig;
   List<dynamic> _storedStickerPacks;
   List<dynamic> data = [];
   List<Widget> cards = [];
+
+  Map<String, dynamic> toJson() {
+    return {
+      "android_play_store_link": "",
+      "ios_app_store_link": "",
+      "sticker_packs": _storedStickerPacks,
+    };
+  }
 
   Future isLoggedIn() async {
     final token = await storage.read(key: "token");
@@ -109,11 +121,11 @@ class _StickerPage extends State<StickerPage> {
   }
 
   void checkFolderStructure() async {
-    var _applicationDirectory = await getApplicationDocumentsDirectory();
-    var _stickerPackDirectory =
-        Directory("${_applicationDirectory.path}/stickers");
-    var _stickersConfigFile =
-        File("${_stickerPackDirectory.path}/sticker_packs.json");
+    _applicationDirectory = await getApplicationDocumentsDirectory();
+    _stickerPacksDirectory =
+        Directory("${_applicationDirectory.path}/sticker_packs");
+    _stickersConfigFile =
+        File("${_stickerPacksDirectory.path}/sticker_packs.json");
 
     if (!(await _stickersConfigFile.exists())) {
       _stickersConfigFile.createSync(recursive: true);
@@ -157,6 +169,94 @@ class _StickerPage extends State<StickerPage> {
           textColor: Colors.white);
       return;
     }
+
+    await downloadAndAdd(data);
+  }
+
+  downloadAndAdd(Map<String, dynamic> packData) async {
+    String packID = packData["pack_id"];
+    checkFolderStructure();
+    var _stickerPackDirectory =
+        Directory("${_stickerPacksDirectory.path}/$packID")
+          ..create(recursive: true);
+    final downloads = <Future>[];
+    setState(() {
+      _isLoading = true;
+      downloaded = 0;
+      toDownload = packData["data"].length;
+    });
+
+    Map<String, dynamic> packConfig = {
+      "identifier": packID,
+      "name": packData["name"],
+      "publisher": "Steeker",
+      "tray_image_file": "$packID.png",
+      "image_data_version": "1",
+      "avoid_cache": false,
+      "publisher_email": "bhangalepiyush@gmail.com",
+      "stickers": []
+    };
+
+    // tray image
+    downloads.add(
+      dio.download(
+          packData["tray_image"], "${_stickerPackDirectory.path}/$packID.png"),
+    );
+    //emotes
+    packData["data"].forEach(
+      (emoteData) {
+        downloads.add(
+          dio.download(emoteData["url"],
+              "${_stickerPackDirectory.path}/${emoteData["name"]}.webp"),
+        );
+
+        packConfig["stickers"].add({
+          "image_file":
+              "${emoteData["name"]}.webp",
+          // .replaceAll("file://", "")
+          // .replaceAll("/", "_MZN_AD_"),
+          // "${emoteData["name"]}.webp",
+          "emojis": ["😉"]
+        });
+
+        setState(() {
+          downloaded = downloaded + 1;
+        });
+      },
+    );
+
+    await Future.wait(downloads);
+
+    _storedStickerPacks
+        .removeWhere((item) => item['identifier'] == packConfig['identifier']);
+    _storedStickerPacks.add(packConfig);
+
+    _stickerPacksConfig['sticker_packs'] = _storedStickerPacks;
+    JsonEncoder encoder = new JsonEncoder.withIndent('  ');
+    String contentsOfFile = encoder.convert(_stickerPacksConfig) + "\n";
+    _stickersConfigFile.deleteSync();
+    _stickersConfigFile.createSync(recursive: true);
+    _stickersConfigFile.writeAsStringSync(contentsOfFile, flush: true);
+
+    _whatsAppStickers.updatedStickerPacks(packID);
+
+    _whatsAppStickers.addStickerPack(
+      packageName: WhatsAppPackage.Consumer,
+      stickerPackIdentifier: packID,
+      stickerPackName: packData["name"],
+      listener: (action, result, {error}) => processResponse(
+        action: action,
+        result: result,
+        error: error,
+        successCallback: () =>
+            Fluttertoast.showToast(msg: "Added ${packData["name"]}"),
+        context: context,
+      ),
+    );
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_conditional_rendering/conditional.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -25,6 +26,7 @@ class _StickerPage extends State<StickerPage> {
   final storage = new FlutterSecureStorage();
   final dio = Dio();
   final WhatsAppStickers _whatsAppStickers = WhatsAppStickers();
+  final Trace myTrace = FirebasePerformance.instance.newTrace("stickers");
   int downloaded = 1;
   int toDownload = 2;
   bool _isLoading = true;
@@ -149,9 +151,21 @@ class _StickerPage extends State<StickerPage> {
     final queryParams = {"pack_id": packID};
     final String queryString = Uri(queryParameters: queryParams).query;
 
+    final HttpMetric metric = FirebasePerformance.instance.newHttpMetric(
+        "https://rust.piyushdev.ml/api/stickers/@me?$queryString",
+        HttpMethod.Get);
+
+    await metric.start();
+
     final response = await http.get(
         "https://rust.piyushdev.ml/api/stickers/@me?$queryString",
         headers: {"Authorization": "Bearer " + token});
+
+    metric
+      ..responseContentType = response.headers["Content-Type"]
+      ..responsePayloadSize = response.contentLength
+      ..httpResponseCode = response.statusCode;
+    await metric.stop();
 
     if (response.statusCode != 200) {
       Fluttertoast.showToast(
@@ -197,6 +211,7 @@ class _StickerPage extends State<StickerPage> {
       "stickers": []
     };
 
+    await myTrace.start();
     // tray image
     downloads.add(
       dio.download(
@@ -211,10 +226,10 @@ class _StickerPage extends State<StickerPage> {
         );
 
         packConfig["stickers"].add({
-          "image_file":
-              "${emoteData["name"]}.webp",
+          "image_file": "${emoteData["name"]}.webp",
           "emojis": ["😉"]
         });
+        myTrace.incrementMetric("downloaded", 1);
 
         setState(() {
           downloaded = downloaded + 1;
@@ -223,6 +238,7 @@ class _StickerPage extends State<StickerPage> {
     );
 
     await Future.wait(downloads);
+    await myTrace.stop();
 
     _storedStickerPacks
         .removeWhere((item) => item['identifier'] == packConfig['identifier']);
@@ -237,6 +253,7 @@ class _StickerPage extends State<StickerPage> {
 
     _whatsAppStickers.updatedStickerPacks(packID);
 
+    await myTrace.start();
     _whatsAppStickers.addStickerPack(
       packageName: WhatsAppPackage.Consumer,
       stickerPackIdentifier: packID,
@@ -250,6 +267,8 @@ class _StickerPage extends State<StickerPage> {
         context: context,
       ),
     );
+    myTrace.incrementMetric("added", 1);
+    await myTrace.stop();
 
     setState(() {
       _isLoading = false;

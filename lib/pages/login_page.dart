@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
@@ -18,6 +20,9 @@ class _LoginPage extends State<LoginPage> {
   final FlutterAppAuth appAuth = FlutterAppAuth();
 
   Future _loginUser() async {
+    final Trace oauthTrace = FirebasePerformance.instance.newTrace("login");
+
+    await oauthTrace.start();
     final AuthorizationTokenResponse result =
         await appAuth.authorizeAndExchangeCode(
       AuthorizationTokenRequest("793424606324981770", "steeker://oauthredirect",
@@ -29,9 +34,16 @@ class _LoginPage extends State<LoginPage> {
           promptValues: ["none"]),
     );
 
+    oauthTrace.incrementMetric("oauth_request", 1);
+
     final responseData =
         await _getCode(result.accessToken, result.refreshToken);
+    oauthTrace.incrementMetric("oauth_api_code_exchange", 1);
+
     await storage.write(key: "token", value: responseData["code"]);
+    oauthTrace.incrementMetric("oauth_store_token", 1);
+
+    await oauthTrace.stop();
 
     Navigator.pushReplacement(
       context,
@@ -49,13 +61,28 @@ class _LoginPage extends State<LoginPage> {
 
     final String queryString = Uri(queryParameters: queryParams).query;
 
-    final response = await http
-        .post("https://rust.piyushdev.ml/api/auth/code?" + queryString);
+    final HttpMetric metric = FirebasePerformance.instance.newHttpMetric(
+        "https://rust.piyushdev.ml/api/auth/code?$queryString",
+        HttpMethod.Post);
+
+    await metric.start();
+    final response =
+        await http.post("https://rust.piyushdev.ml/api/auth/code?$queryString");
+
+    metric
+      ..responseContentType = response.headers["Content-Type"]
+      ..responsePayloadSize = response.contentLength
+      ..httpResponseCode = response.statusCode;
+    await metric.stop();
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Failed to get user details');
+      Fluttertoast.showToast(msg: "${response.statusCode} - ${response.body}");
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
     }
   }
 

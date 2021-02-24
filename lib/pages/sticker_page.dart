@@ -213,9 +213,6 @@ class _StickerPage extends State<StickerPage> {
         packConfig["stickers"].add({
           "image_file":
               "${emoteData["name"]}.webp",
-          // .replaceAll("file://", "")
-          // .replaceAll("/", "_MZN_AD_"),
-          // "${emoteData["name"]}.webp",
           "emojis": ["😉"]
         });
 
@@ -257,6 +254,8 @@ class _StickerPage extends State<StickerPage> {
     setState(() {
       _isLoading = false;
     });
+
+    await _stickerPackDirectory.delete(recursive: true);
   }
 
   @override

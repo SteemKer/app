@@ -86,7 +86,7 @@ class _StickerPackCard extends State<StickerPackCard> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          Scaffold.of(context).showSnackBar(
                             SnackBar(
                               content: Text("Soon"),
                             ),

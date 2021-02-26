@@ -58,11 +58,11 @@ class _StickerPage extends State<StickerPage> {
       return;
     }
 
-    final profileResponse = await http.get(
-        "https://rust.piyushdev.ml/api/users/@me",
+    final response = await http.get(
+        "https://rust.piyushdev.ml/api/stickers/@me",
         headers: {"Authorization": "Bearer " + token});
 
-    if (profileResponse.statusCode != 200) {
+    if (response.statusCode != 200) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),
@@ -70,7 +70,10 @@ class _StickerPage extends State<StickerPage> {
       return;
     }
 
-    Map<String, dynamic> profileData = jsonDecode(profileResponse.body);
+    Map<String, dynamic> apiData = jsonDecode(response.body);
+    print(apiData);
+    Map<String, dynamic> profileData = apiData["user"];
+    List<dynamic> decodedData = apiData["data"];
 
     String name = profileData["username"];
     String discriminator = profileData["discriminator"];
@@ -84,19 +87,6 @@ class _StickerPage extends State<StickerPage> {
       },
     );
 
-    final response = await http.get(
-        "https://rust.piyushdev.ml/api/stickers/@me",
-        headers: {"Authorization": "Bearer " + token});
-
-    if (response.statusCode != 200) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
-      );
-      return;
-    }
-
-    List<dynamic> decodedData = jsonDecode(response.body);
     List<Widget> _cards = [];
     decodedData.forEach(
       (pack) {
@@ -105,7 +95,7 @@ class _StickerPage extends State<StickerPage> {
           StickerPackCard(
             packData: pack["data"],
             packName: pack["name"],
-            packID: pack["id"],
+            packID: pack["pack_id"],
             onAddPressed: onAddPressed,
           ),
         );
@@ -200,7 +190,7 @@ class _StickerPage extends State<StickerPage> {
     }
 
     Map<String, dynamic> data = jsonDecode(response.body);
-    if (data["data"].length <= 2) {
+    if (data["data"]["data"].length <= 2) {
       Fluttertoast.showToast(
           msg: "Pack with ID $packID has no data in it",
           backgroundColor: Colors.redAccent,
@@ -208,7 +198,7 @@ class _StickerPage extends State<StickerPage> {
       return;
     }
 
-    await downloadAndAdd(data);
+    await downloadAndAdd(data["data"]);
   }
 
   downloadAndAdd(Map<String, dynamic> packData) async {

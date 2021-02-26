@@ -20,7 +20,6 @@ class StickerPackCard extends StatefulWidget {
 }
 
 class _StickerPackCard extends State<StickerPackCard> {
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -87,8 +86,11 @@ class _StickerPackCard extends State<StickerPackCard> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          Scaffold.of(context)
-                              .showSnackBar(SnackBar(content: Text("Soon")));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Soon"),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                             primary: Colors.orangeAccent),

@@ -30,7 +30,7 @@ class _ProfileScreen extends State<ProfileScreen> {
       return;
     }
 
-    final response = await http.get("https://rust.piyushdev.ml/api/users/@me",
+    final response = await http.get("https://steeker.piyushdev.ml/api/users/@me",
         headers: {"Authorization": "Bearer " + token});
 
     if (response.statusCode != 200) {

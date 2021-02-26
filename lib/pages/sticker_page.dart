@@ -59,7 +59,7 @@ class _StickerPage extends State<StickerPage> {
     }
 
     final response = await http.get(
-        "https://rust.piyushdev.ml/api/stickers/@me",
+        "https://steeker.piyushdev.ml/api/stickers/@me",
         headers: {"Authorization": "Bearer " + token});
 
     if (response.statusCode != 200) {
@@ -166,13 +166,13 @@ class _StickerPage extends State<StickerPage> {
     final String queryString = Uri(queryParameters: queryParams).query;
 
     final HttpMetric metric = FirebasePerformance.instance.newHttpMetric(
-        "https://rust.piyushdev.ml/api/stickers/@me?$queryString",
+        "https://steeker.piyushdev.ml/api/stickers/@me?$queryString",
         HttpMethod.Get);
 
     await metric.start();
 
     final response = await http.get(
-        "https://rust.piyushdev.ml/api/stickers/@me?$queryString",
+        "https://steeker.piyushdev.ml/api/stickers/@me?$queryString",
         headers: {"Authorization": "Bearer " + token});
 
     metric
@@ -223,6 +223,7 @@ class _StickerPage extends State<StickerPage> {
     Map<String, dynamic> packConfig = {
       "identifier": packID,
       "name": packData["name"],
+      "animated": packData["animated"] || false,
       "publisher": "Steeker",
       "tray_image_file": "$packID.png",
       "image_data_version": "1",

@@ -73,12 +73,12 @@ class _LoginPage extends State<LoginPage> {
     final String queryString = Uri(queryParameters: queryParams).query;
 
     final HttpMetric metric = FirebasePerformance.instance.newHttpMetric(
-        "https://rust.piyushdev.ml/api/auth/code?$queryString",
+        "https://steeker.piyushdev.ml/api/auth/code?$queryString",
         HttpMethod.Post);
 
     await metric.start();
     final response =
-        await http.post("https://rust.piyushdev.ml/api/auth/code?$queryString");
+        await http.post("https://steeker.piyushdev.ml/api/auth/code?$queryString");
 
     metric
       ..responseContentType = response.headers["Content-Type"]

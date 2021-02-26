@@ -71,7 +71,6 @@ class _StickerPage extends State<StickerPage> {
     }
 
     Map<String, dynamic> apiData = jsonDecode(response.body);
-    print(apiData);
     Map<String, dynamic> profileData = apiData["user"];
     List<dynamic> decodedData = apiData["data"];
 

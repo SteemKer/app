@@ -8,10 +8,6 @@ Future<void> processResponse(
       String error,
       BuildContext context,
       Function successCallback}) async {
-  print("_listener");
-  print(action);
-  print(result);
-  print(error);
 
   SnackBar snackBar;
 

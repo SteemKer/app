@@ -8,7 +8,9 @@ class PlaceholderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext ctx) {
     return Container(
-        color: color,
+        decoration: BoxDecoration(
+          color: color
+        ),
         child: Center(
           child: Container(
             padding: EdgeInsets.all(30),

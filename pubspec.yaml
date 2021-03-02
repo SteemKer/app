@@ -3,7 +3,7 @@ description: Discord emojis to stickers
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.0+1
+version: 1.0.0
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -23,6 +23,8 @@ dependencies:
   fluttertoast: ^7.1.8
   loading_overlay: ^0.2.1
   flutter_whatsapp_stickers: ^1.0.0+4
+  package_info: ^0.4.3+4
+  url_launcher: ^5.7.10
   flutter:
     sdk: flutter
 

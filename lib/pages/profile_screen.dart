@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:steeker/pages/login_page.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -30,7 +30,8 @@ class _ProfileScreen extends State<ProfileScreen> {
       return;
     }
 
-    final response = await http.get("https://steeker.piyushdev.ml/api/users/@me",
+    final response = await http.get(
+        Uri.https("https://steeker.piyushdev.ml", "/api/users/@me"),
         headers: {"Authorization": "Bearer " + token});
 
     if (response.statusCode != 200) {

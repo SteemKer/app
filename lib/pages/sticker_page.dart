@@ -59,7 +59,7 @@ class _StickerPage extends State<StickerPage> {
     }
 
     final response = await http.get(
-        "https://steeker.piyushdev.ml/api/stickers/@me",
+        Uri.https("steeker.piyushdev.ml", "api/stickers/@me"),
         headers: {"Authorization": "Bearer " + token});
 
     if (response.statusCode != 200) {
@@ -171,7 +171,8 @@ class _StickerPage extends State<StickerPage> {
     await metric.start();
 
     final response = await http.get(
-        "https://steeker.piyushdev.ml/api/stickers/@me?$queryString",
+        Uri.https(
+            "https://steeker.piyushdev.ml", "/api/stickers/@me", queryParams),
         headers: {"Authorization": "Bearer " + token});
 
     metric

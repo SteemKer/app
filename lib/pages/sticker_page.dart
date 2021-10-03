@@ -222,7 +222,8 @@ class _StickerPage extends State<StickerPage> {
     Map<String, dynamic> packConfig = {
       "identifier": packID,
       "name": packData["name"],
-      "animated": (packData["animated"] != null) ? packData["animated"] : false,
+      "animated_sticker_pack":
+          (packData["animated"] != null) ? packData["animated"] : false,
       "publisher": "Steeker",
       "tray_image_file": "$packID.png",
       "image_data_version": "1",

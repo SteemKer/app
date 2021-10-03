@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_performance/firebase_performance.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
-import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:steeker/pages/landing_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -77,8 +77,8 @@ class _LoginPage extends State<LoginPage> {
         HttpMethod.Post);
 
     await metric.start();
-    final response =
-        await http.post("https://steeker.piyushdev.ml/api/auth/code?$queryString");
+    final response = await http.post(Uri.https(
+        "https://steeker.piyushdev.ml", "/api/auth/code", queryParams));
 
     metric
       ..responseContentType = response.headers["Content-Type"]

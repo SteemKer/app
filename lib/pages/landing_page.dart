@@ -34,7 +34,7 @@ class _LandingPage extends State<LandingPage> {
     }
 
     final response = await http.get(
-      Uri.https("https://steeker.netlify.app", "data.json"),
+      Uri.https("steeker.netlify.app", "data.json"),
     );
 
     if (response.statusCode != 200) {
@@ -86,7 +86,7 @@ class _LandingPage extends State<LandingPage> {
     }
 
     final response = await http.get(
-        Uri.https("https://steeker.piyushdev.ml", "api/users/@me"),
+        Uri.https("steeker.piyushdev.ml", "api/users/@me"),
         headers: {"Authorization": "Bearer " + token});
 
     if (!this.mounted) return;

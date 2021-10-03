@@ -171,8 +171,7 @@ class _StickerPage extends State<StickerPage> {
     await metric.start();
 
     final response = await http.get(
-        Uri.https(
-            "https://steeker.piyushdev.ml", "api/stickers/@me", queryParams),
+        Uri.https("steeker.piyushdev.ml", "api/stickers/@me", queryParams),
         headers: {"Authorization": "Bearer " + token});
 
     metric

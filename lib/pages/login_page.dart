@@ -77,8 +77,8 @@ class _LoginPage extends State<LoginPage> {
         HttpMethod.Post);
 
     await metric.start();
-    final response = await http.post(Uri.https(
-        "https://steeker.piyushdev.ml", "api/auth/code", queryParams));
+    final response = await http
+        .post(Uri.https("steeker.piyushdev.ml", "api/auth/code", queryParams));
 
     metric
       ..responseContentType = response.headers["Content-Type"]

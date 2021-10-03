@@ -31,7 +31,7 @@ class _ProfileScreen extends State<ProfileScreen> {
     }
 
     final response = await http.get(
-        Uri.https("https://steeker.piyushdev.ml", "api/users/@me"),
+        Uri.https("steeker.piyushdev.ml", "api/users/@me"),
         headers: {"Authorization": "Bearer " + token});
 
     if (response.statusCode != 200) {

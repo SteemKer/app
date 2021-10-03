@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_conditional_rendering/conditional_switch.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http/http.dart' as http;
 import 'package:package_info/package_info.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:http/http.dart' as http;
 import 'package:steeker/pages/login_page.dart';
 import 'package:steeker/pages/placeholder.dart';
 import 'package:steeker/pages/update_screen.dart';
@@ -34,7 +34,7 @@ class _LandingPage extends State<LandingPage> {
     }
 
     final response = await http.get(
-      "https://steeker.netlify.app/data.json",
+      Uri.https("https://steeker.netlify.app", "/data.json"),
     );
 
     if (response.statusCode != 200) {
@@ -86,7 +86,7 @@ class _LandingPage extends State<LandingPage> {
     }
 
     final response = await http.get(
-        "https://steeker.piyushdev.ml/api/users/@me",
+        Uri.https("https://steeker.piyushdev.ml", "/api/users/@me"),
         headers: {"Authorization": "Bearer " + token});
 
     if (!this.mounted) return;
